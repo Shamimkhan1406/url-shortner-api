@@ -1,0 +1,21 @@
+# Environment and secret files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+.env.*
+
+# Credentials and key material
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.asc
+credentials.yml.enc
+secret*
+secrets.yml
+config/database.yml
+.env
