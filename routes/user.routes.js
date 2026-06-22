@@ -1,9 +1,10 @@
 import express from 'express';
 import { db } from '../db/index.js';
 import { usersTable } from '../models/index.js';
-import { signupPostRequestBodySchema } from '../validation/request.validation.js';
+import { signupPostRequestBodySchema, loginPostRequestBodySchema } from '../validation/request.validation.js';
 import { hashPassword } from '../utils/hash.js';
 import { findUserByEmail, createUser } from '../services/user.service.js';
+import { createUserToken } from '../utils/token.js';
 
 const router = express.Router();
 
@@ -38,6 +39,35 @@ router.post('/signup',async (req, res) => {
         }
     })
 
+});
+
+router.post('/login', async (req, res)=> {
+    const validation = await loginPostRequestBodySchema.safeParseAsync(req.body);
+
+    if (validation.error) {
+        return res.status(400).json({
+            error: validation.error.format(),
+        })
+    }
+    const { email, password } = validation.data;
+
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+        return res.status(400).json({
+            message: 'Invalid email or password',
+        })
+    }
+    const { hashedPassword } = hashPassword(password, user.salt);
+
+    if (hashedPassword !== user.password) {
+        return res.status(400).json({
+            message: 'Invalid password',
+        })
+    }
+
+    const token = await createUserToken({ id: user.id });
+    return res.json({ token });
 })
 
 export default router;
