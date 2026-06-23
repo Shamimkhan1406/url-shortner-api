@@ -1,5 +1,6 @@
 import express from 'express';
 import userRoutes from './routes/user.routes.js';
+import urlRoutes from './routes/url.routes.js';
 import { authMiddleware } from './middleware/auth.middleware.js';
 
 const app = express();
@@ -12,6 +13,7 @@ app.get('/', (req, res) => {
     res.json({status: 'Hello World!'});
 })
 
+app.use(urlRoutes);
 app.use('/user', userRoutes);
 
 app.listen(PORT, ()=> {

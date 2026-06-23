@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { userTokenSchema } from '../validation/token.validation.js';
+import 'dotenv/config';
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -12,7 +13,7 @@ export async function createUserToken(payload) {
     return jwt.sign(validPayload, secretKey, { expiresIn: '1h' });
 }
 
-export async function verifyUserToken(token) {
+export function verifyUserToken(token) {
     try {
         const payload = jwt.verify(token, secretKey);
         return payload;

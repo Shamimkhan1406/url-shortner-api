@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { usersTable } from "../models/index.js";
+import { usersTable,urlsTable } from "../models/index.js";
 import { eq } from "drizzle-orm";
 
 export async function findUserByEmail(email) {
@@ -12,7 +12,7 @@ export async function findUserByEmail(email) {
         password: usersTable.password,
     }).from(usersTable).where(eq(usersTable.email, email));
     return existingUser;
-}
+};
 
 export async function createUser(firstName, lastName, email, salt, hashedPassword) {
     const [user] = await db.insert(usersTable).values({
@@ -25,4 +25,17 @@ export async function createUser(firstName, lastName, email, salt, hashedPasswor
         id: usersTable.id,
     });
     return user;
+};
+
+export async function insertUrl(userId, targetUrl, shortCode) {
+    const [result] = await db.insert(urlsTable).values({
+            shortCode: shortCode || nanoid(8),
+            targetUrl,
+            userId,
+        }).returning({
+            id: urlsTable.id,
+            shortCode: urlsTable.shortCode,
+            targetUrl: urlsTable.targetUrl,
+        });
+    return result;
 }
