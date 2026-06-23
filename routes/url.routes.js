@@ -6,6 +6,7 @@ import { db } from '../db/index.js';
 import { urlsTable } from '../models/index.js';
 import { nanoid } from 'nanoid';
 import { insertUrl } from '../services/user.service.js';
+import { eq } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -35,6 +36,19 @@ router.post('/shorten', ensureAuthenticated, async (req, res) => {
             cause: error.cause,
         });
     }
+});
+
+router.get('/:shortCode', async (req, res) => {
+    const shortCode = req.params.shortCode;
+    const [result] = await db.select({
+        targetUrl: urlsTable.targetUrl,
+    }).from(urlsTable).where(eq(urlsTable.shortCode, shortCode));
+    if (!result) {
+        return res.status(404).json({
+            error: 'Short code not found',
+        });
+    }
+    return res.redirect(result.targetUrl);
 });
 
 export default router;
