@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 
 const router = express.Router();
 
-router.post('/shorten', ensureAuthenticated, async (req, res) => {
+router.post('/shorten', authMiddleware, async (req, res) => {
     try {
         const validationResult =
             await shortenPostRequestBodySchema.safeParseAsync(req.body);
@@ -36,6 +36,11 @@ router.post('/shorten', ensureAuthenticated, async (req, res) => {
             cause: error.cause,
         });
     }
+});
+
+router.get('/codes',authMiddleware, async(req,res)=>{
+    const codes = await db.select().from(urlsTable).where(eq(urlsTable.userId, req.user.id));
+    return res.json({codes});
 });
 
 router.get('/:shortCode', async (req, res) => {
